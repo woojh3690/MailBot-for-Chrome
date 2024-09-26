@@ -1,3 +1,5 @@
 .vscode/
 messages/
 *.faiss
+__pycache__/
+*.npy

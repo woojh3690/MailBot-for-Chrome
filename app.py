@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from your_chatbot_module import chatbot  # Import the chatbot function from Step 2
+from chatbot import chatbot  # Import the chatbot function from Step 2
 
 app = FastAPI()
 
