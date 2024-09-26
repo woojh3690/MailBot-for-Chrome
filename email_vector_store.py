@@ -1,5 +1,5 @@
 import os
-import email
+import re
 from email import policy
 from email.parser import BytesParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -64,8 +64,10 @@ def process_eml_files(messages_folder='messages'):
                     except Exception as e:
                         print(f"페이로드 추출 중 오류 발생: {e}")
 
+                content = re.sub(r'<.*?>', '', content).strip()
+
                 # 본문이 제대로 추출되었는지 확인
-                if content:
+                if content != "":
                     full_text = f"Subject: {subject}\n\n{content}"
                     # 텍스트를 청크로 분할
                     chunks = text_splitter.split_text(full_text)
@@ -96,6 +98,7 @@ def load_index_and_documents():
     if os.path.exists('email_index.faiss') and os.path.exists('documents.npy'):
         index = faiss.read_index('email_index.faiss')
         documents = np.load('documents.npy', allow_pickle=True)
+        documents = documents.tolist()
     else:
         print("인덱스와 문서를 찾을 수 없습니다. 생성하려면 process_eml_files()를 실행하세요.")
 
