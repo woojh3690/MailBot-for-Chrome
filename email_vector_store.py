@@ -1,5 +1,3 @@
-# email_vector_store.py
-
 import os
 import email
 from email import policy
@@ -9,11 +7,11 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 
-# Initialize embedding model and text splitter
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')  # You can choose another model
+# 임베딩 모델과 텍스트 분할기 초기화
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')  # 다른 모델을 선택할 수 있음
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
-# Initialize global variables
+# 전역 변수 초기화
 index = None
 documents = []
 embeddings = []
@@ -29,32 +27,32 @@ def process_eml_files(messages_folder='messages'):
             filepath = os.path.join(messages_folder, filename)
             with open(filepath, 'rb') as file:
                 msg = BytesParser(policy=policy.default).parse(file)
-                # Extract email content
+                # 이메일 내용 추출
                 subject = msg['subject'] if msg['subject'] else ''
                 body = msg.get_body(preferencelist=('plain', 'html'))
                 if body:
                     content = body.get_content()
                     full_text = f"Subject: {subject}\n\n{content}"
-                    # Split text into chunks
+                    # 텍스트를 청크로 분할
                     chunks = text_splitter.split_text(full_text)
-                    # Embed each chunk
+                    # 각 청크를 임베딩
                     for chunk in chunks:
                         embedding = embedding_model.encode(chunk)
                         embeddings.append(embedding)
                         documents.append(chunk)
 
-    # Convert embeddings to NumPy array
+    # 임베딩을 NumPy 배열로 변환
     embeddings_array = np.array(embeddings).astype('float32')
 
-    # Build FAISS index
+    # FAISS 인덱스 생성
     if embeddings_array.size > 0:
         dimension = embeddings_array.shape[1]
         index = faiss.IndexFlatL2(dimension)
         index.add(embeddings_array)
     else:
-        print("No embeddings were generated. Check if the .eml files contain content.")
+        print("임베딩이 생성되지 않았습니다. .eml 파일에 내용이 있는지 확인하세요.")
 
-    # Save the index and documents
+    # 인덱스와 문서 저장
     faiss.write_index(index, 'email_index.faiss')
     with open('documents.npy', 'wb') as f:
         np.save(f, np.array(documents))
@@ -65,11 +63,11 @@ def load_index_and_documents():
         index = faiss.read_index('email_index.faiss')
         documents = np.load('documents.npy', allow_pickle=True)
     else:
-        print("Index and documents not found. Please run process_eml_files() to generate them.")
+        print("인덱스와 문서를 찾을 수 없습니다. 생성하려면 process_eml_files()를 실행하세요.")
 
-# Load index and documents when imported as a module
+# 모듈로 가져올 때 인덱스와 문서를 로드
 load_index_and_documents()
 
-# When executed as a script, process the .eml files
+# 스크립트로 실행될 때 .eml 파일 처리
 if __name__ == '__main__':
     process_eml_files()
