@@ -65,9 +65,9 @@ def load_index_and_documents():
     else:
         print("인덱스와 문서를 찾을 수 없습니다. 생성하려면 process_eml_files()를 실행하세요.")
 
-# 모듈로 가져올 때 인덱스와 문서를 로드
-load_index_and_documents()
-
 # 스크립트로 실행될 때 .eml 파일 처리
 if __name__ == '__main__':
     process_eml_files()
+else:
+    # 모듈로 가져올 때 인덱스와 문서를 로드
+    load_index_and_documents()
