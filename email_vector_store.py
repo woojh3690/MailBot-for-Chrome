@@ -6,6 +6,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
+from bs4 import BeautifulSoup
 
 # 임베딩 모델과 텍스트 분할기 초기화
 embedding_model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')  # 다른 모델을 선택할 수 있음
@@ -18,7 +19,7 @@ embeddings = []
 
 def process_eml_files(messages_folder='messages'):
     global embeddings, documents, index
-
+    
     embeddings = []
     documents = []
 
@@ -27,11 +28,39 @@ def process_eml_files(messages_folder='messages'):
             filepath = os.path.join(messages_folder, filename)
             with open(filepath, 'rb') as file:
                 msg = BytesParser(policy=policy.default).parse(file)
+
                 # 이메일 내용 추출
                 subject = msg['subject'] if msg['subject'] else ''
                 body = msg.get_body(preferencelist=('plain', 'html'))
                 if body:
-                    content = body.get_content()
+                    try:
+                        content = body.get_content()
+                    except Exception as e:
+                        print(f"본문 추출 중 오류 발생: {e}")
+
+                # 본문이 없을 때 fallback
+                if not content:
+                    for part in msg.walk():
+                        try:
+                            if part.get_content_type() == "text/plain":
+                                content += part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                            elif part.get_content_type() == "text/html":
+                                html_content = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                                # HTML에서 순수 텍스트 추출
+                                soup = BeautifulSoup(html_content, 'html.parser')
+                                content += soup.get_text(separator='\n')  # 줄바꿈으로 구분된 순수 텍스트
+                        except Exception as e:
+                            print(f"MIME 파트 처리 중 오류 발생: {e}")
+
+                # 여전히 본문이 없으면 전체 페이로드 시도
+                if not content:
+                    try:
+                        content = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+                    except Exception as e:
+                        print(f"페이로드 추출 중 오류 발생: {e}")
+
+                # 본문이 제대로 추출되었는지 확인
+                if content:
                     full_text = f"Subject: {subject}\n\n{content}"
                     # 텍스트를 청크로 분할
                     chunks = text_splitter.split_text(full_text)

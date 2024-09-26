@@ -3,3 +3,4 @@ faiss-cpu
 sentence-transformers
 fastapi
 uvicorn
+beautifulsoup4
