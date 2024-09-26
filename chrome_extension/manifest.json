@@ -1,0 +1,22 @@
+{
+	"manifest_version": 3,
+	"name": "Email Assistant Chatbot",
+	"version": "1.0",
+	"description": "A chatbot for querying your email archive.",
+	"permissions": ["activeTab", "scripting"],
+	"host_permissions": ["<all_urls>"],
+	"content_scripts": [
+	  {
+		"matches": ["https://iwaz.daouoffice.com/app/mail"],
+		"js": ["content.js"],
+		"css": ["popup.css"]
+	  }
+	],
+	"web_accessible_resources": [
+	  {
+		"resources": ["popup.html", "popup.js", "popup.css"],
+		"matches": ["<all_urls>"]
+	  }
+	]
+  }
+  
