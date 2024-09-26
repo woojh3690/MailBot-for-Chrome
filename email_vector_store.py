@@ -10,9 +10,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 # 임베딩 모델과 텍스트 분할기 초기화
-# embedding_model = SentenceTransformer('Salesforce/SFR-Embedding-2_R')
 embedding_model = SentenceTransformer('intfloat/multilingual-e5-large-instruct')
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
 # 전역 변수 초기화
 index = None
@@ -68,14 +66,19 @@ def process_eml_files(messages_folder='messages'):
 
                 # 본문이 제대로 추출되었는지 확인
                 if content != "":
+                    # 필요 없는 줄바꿈 제거
+                    lines = []
+                    for line in content.splitlines():
+                        line = line.strip()
+                        if line != "":
+                            lines.append(line)
+                    content = "\n".join(lines)
+
+                    # 제목 추가
                     full_text = f"Subject: {subject}\n\n{content}"
-                    # 텍스트를 청크로 분할
-                    chunks = text_splitter.split_text(full_text)
-                    # 각 청크를 임베딩
-                    for chunk in chunks:
-                        embedding = embedding_model.encode(chunk)
-                        embeddings.append(embedding)
-                        documents.append(chunk)
+                    embedding = embedding_model.encode(full_text)
+                    embeddings.append(embedding)
+                    documents.append(full_text)
 
     # 임베딩을 NumPy 배열로 변환
     embeddings_array = np.array(embeddings).astype('float32')
