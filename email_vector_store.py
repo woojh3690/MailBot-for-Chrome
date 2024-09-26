@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 # 임베딩 모델과 텍스트 분할기 초기화
-embedding_model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')  # 다른 모델을 선택할 수 있음
+# embedding_model = SentenceTransformer('Salesforce/SFR-Embedding-2_R')
+embedding_model = SentenceTransformer('intfloat/multilingual-e5-large-instruct')
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
 # 전역 변수 초기화
