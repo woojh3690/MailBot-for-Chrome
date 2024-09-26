@@ -7,6 +7,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 # 임베딩 모델과 텍스트 분할기 초기화
 embedding_model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')  # 다른 모델을 선택할 수 있음
@@ -23,7 +24,10 @@ def process_eml_files(messages_folder='messages'):
     embeddings = []
     documents = []
 
-    for filename in os.listdir(messages_folder):
+    # .eml 파일 목록 가져오기
+    eml_files = [f for f in os.listdir(messages_folder) if f.endswith('.eml')]
+
+    for filename in tqdm(eml_files, desc="Processing EML Files", unit="file"):
         if filename.endswith('.eml'):
             filepath = os.path.join(messages_folder, filename)
             with open(filepath, 'rb') as file:
