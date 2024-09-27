@@ -2,7 +2,6 @@ import os
 import re
 from email import policy
 from email.parser import BytesParser
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
