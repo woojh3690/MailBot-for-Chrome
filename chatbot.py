@@ -17,7 +17,7 @@ def generate_answer(query, retrieved_docs):
     url = f'http://192.168.0.66:11434/api/generate'
     headers = {'Content-Type': 'application/json'}
     data = { 
-        "model": "llama3.1:70b-instruct-q4_0",
+        "model": "llama3.3:70b",
         "prompt": prompt,
         "stream": False
     }
