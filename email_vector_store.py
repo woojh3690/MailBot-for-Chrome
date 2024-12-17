@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 # 임베딩 모델과 텍스트 분할기 초기화
-embedding_model = SentenceTransformer('intfloat/multilingual-e5-large-instruct')
+embedding_model = SentenceTransformer('Snowflake/snowflake-arctic-embed-l-v2.0')
 
 # 전역 변수 초기화
 index = None

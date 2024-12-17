@@ -4,7 +4,7 @@ from email_vector_store import index, embedding_model, documents
 
 # 검색
 def retrieve(query, index, embedding_model, documents, top_k=3):
-    query_embedding = embedding_model.encode(query).astype('float32')
+    query_embedding = embedding_model.encode(query, prompt_name="query").astype('float32')
     distances, indices = index.search(np.array([query_embedding]), top_k)
     retrieved_docs = [documents[i] for i in indices[0]]
     return retrieved_docs
